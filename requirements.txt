@@ -2,6 +2,6 @@
 # The Text-to-Art Studio runs on the Python standard library alone (Python 3.10+ with Tkinter).
 # Pillow: graphic (gap-free) preview with glow, anti-aliased PNG/JPEG/WebP/BMP export, and image decoding.
 # NumPy: required by the Image-to-Art and Animation-to-Art Studios (vectorised pixel processing).
-pillow>=10.0
+pillow>=13.0.0
 numpy>=1.24
 # Optional: pillow-heif (HEIC/HEIF decoding). Not required; the app reports when it is missing.
