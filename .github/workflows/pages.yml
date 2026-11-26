@@ -1,0 +1,45 @@
+name: Web app (GitHub Pages)
+
+# Publishes the single-file HTML edition so it can be used in the browser without downloading.
+# It runs entirely client-side: the page's Content-Security-Policy blocks all network requests.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - LeerBox_Text_Art_Studio_V3.html
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Prepare site
+        run: |
+          mkdir _site
+          cp LeerBox_Text_Art_Studio_V3.html _site/index.html
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src data: blob:; media-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>LeerBox Text Art Studio {{VERSION}} — Ultimate Edition</title>
+<style>{{CSS}}</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="logo" aria-hidden="true">LB</div>
+    <div class="brand"><b>LeerBox&nbsp; Text Art Studio</b><span>{{VERSION}} Ultimate Edition · offline · <span id="hdrCount">{{GENUINE}}</span> genuine FIGlet/TOIlet fonts</span></div>
+    <nav class="modes" id="modes" aria-label="Mode">
+      <button data-mode="text" class="on">Text Art</button><button data-mode="unicode">Unicode Styles</button>
+      <button data-mode="encode">Encoders</button><button data-mode="boxes">Boxes &amp; Banners</button><button data-mode="image">Image Studio</button><button data-mode="animation">Animation Studio</button>
+    </nav>
+    <div class="right">
+      <button class="ghost" id="btnOpenProject">Open project</button><button class="ghost" id="btnSaveProject">Save project</button><button class="ghost" id="btnAbout">About</button>
+    </div>
+  </header>
+  <main id="mainText">
+    <aside class="left" aria-label="Font library">
+      <h4 style="margin-top:0">Font library</h4>
+      <input type="search" id="search" placeholder="Search fonts (fuzzy) — name, category, author" autocomplete="off">
+      <div class="chips" id="scopes"><button data-scope="All" class="on">All</button><button data-scope="Favorites">Favorites</button><button data-scope="Recent">Recent</button><button data-scope="Imported">Imported</button></div>
+      <div class="grid2">
+        <label for="fCat">Category</label><select id="fCat"></select>
+        <label for="fKind">Type</label><select id="fKind"><option>All</option><option value="genuine">genuine</option><option>figlet</option><option>toilet</option><option>raster</option></select>
+        <label for="fSrc">Source</label><select id="fSrc"></select>
+        <label>Height</label><div class="row"><input type="number" id="fHmin" value="0" min="0" max="99" style="width:58px"><span class="muted">–</span><input type="number" id="fHmax" value="99" min="0" max="99" style="width:58px"><label class="small"><input type="checkbox" id="fClear"> Clear license</label></div>
+      </div>
+      <div class="muted small" id="fontCount" style="margin-top:6px"></div>
+      <div class="fontlist" id="fontList" tabindex="0" role="listbox" aria-label="Fonts"><div id="fontSpacer"></div></div>
+      <div class="actions">
+        <button id="btnFav">★ Favorite</button><button id="btnRandom">Random</button><button id="btnCompareAdd">+ Compare</button>
+        <button id="btnImport">Import…</button><button id="btnImportZip">Import ZIP…</button><button id="btnManage">Manage…</button>
+      </div>
+      <input type="file" id="fileFonts" accept=".flf,.tlf" multiple hidden><input type="file" id="fileZip" accept=".zip" hidden>
+      <input type="file" id="fileProject" accept=".json" hidden><input type="file" id="fileImage" accept="image/*" hidden>
+    </aside>
+    <section class="center">
+      <div class="card inputcard"><div class="hdr"><span id="inputLabel">YOUR TEXT</span><span id="charCount"></span></div>
+        <textarea id="text" spellcheck="false" aria-label="Text">LeerBox</textarea></div>
+      <div class="toolbar">
+        <div class="views" id="views"><button data-view="preview" class="on">Preview</button><button data-view="gallery">All-font gallery</button><button data-view="compare">Compare</button></div>
+        <span class="spacer"></span>
+        <button id="btnCopy">Copy</button>
+        <label><input type="checkbox" id="optGraphic" checked> Graphic</label>
+        <label><input type="checkbox" id="optAutofit" checked> Auto-fit</label>
+        <span class="muted small" id="zoomLabel">100%</span>
+        <button id="btnZoomOut" aria-label="Zoom out">−</button><button id="btnZoomIn" aria-label="Zoom in">+</button><button id="btnFit">Fit</button><button id="btnFull" aria-label="Fullscreen">⛶</button>
+      </div>
+      <div class="stage" id="stage"></div>
+    </section>
+    <aside class="right" aria-label="Settings">
+      <div class="tabs" id="tabs"><button data-tab="layout" class="on">Layout</button><button data-tab="effects">Effects</button><button data-tab="export">Export</button><button data-tab="info">Info</button><button data-tab="tool">Tool</button></div>
+      <div class="panel" id="panel-layout"></div>
+      <div class="panel" id="panel-effects" hidden></div>
+      <div class="panel" id="panel-export" hidden></div>
+      <div class="panel" id="panel-info" hidden></div>
+      <div class="panel" id="panel-tool" hidden></div>
+    </aside>
+  </main>
+  <main id="wsImage" class="ws" hidden aria-label="Image-to-Art Studio"></main>
+  <main id="wsAnim" class="ws" hidden aria-label="Animation-to-Art Studio"></main>
+  <div class="statusbar"><span id="status">Loading fonts…</span><span id="sizeInfo"></span></div>
+</div>
+<div class="dropzone" id="dropzone">Drop FLF/TLF fonts, ZIP collections, images, GIFs/videos or LeerBox projects</div>
+<div class="fullscreen" id="fullscreen"><button class="close" id="btnFullClose">Close (Esc)</button><div id="fullHost"></div></div>
+<dialog id="dlg"><div id="dlgBody"></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button id="dlgClose" class="primary">Close</button></div></dialog>
+<script type="application/json" id="lb-arabic">{{ARABIC_TABLES}}</script>
+<script type="application/json" id="lb-glyphs">{{GLYPH_MASKS}}</script>
+<script type="application/octet-stream" id="lb-fontpack">{{PACK_B64}}</script>
+<script type="application/octet-stream" id="lb-mono">{{MONO_B64}}</script>
+<script id="lb-engine">{{ENGINE}}</script>
+<script id="lb-worker-src" type="text/plain">{{WORKER}}</script>
+<script id="lb-imagestudio">{{IMAGESTUDIO}}</script>
+<script id="lb-app">{{APP}}</script>
+</body>
+</html>

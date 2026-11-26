@@ -1,0 +1,99 @@
+name: Release
+
+# Push a tag such as v3.0.0 to build, test and publish a release.
+# Every file is built from the tagged commit on a GitHub runner, tested, checksummed and given a
+# signed build-provenance attestation (verify with: gh attestation verify <file> --repo <owner>/<repo>).
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build, e.g. v3.0.0
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install build dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Build
+        run: |
+          python tools/build_python.py
+          python tools/build_html.py
+          python tools/build_exe.py
+
+      - name: Test
+        run: |
+          node tests/js/run_tests.js
+          cd tests
+          python -m pytest -q
+
+      - name: Collect assets
+        shell: bash
+        run: |
+          mkdir release
+          cp LeerBox_Text_Art_Studio_V3.py LeerBox_Text_Art_Studio_V3.html dist/LeerBox_Text_Art_Studio_V3.exe release/
+          cd release
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            release/LeerBox_Text_Art_Studio_V3.py
+            release/LeerBox_Text_Art_Studio_V3.html
+            release/LeerBox_Text_Art_Studio_V3.exe
+
+      - name: Release notes
+        shell: bash
+        run: |
+          # first "## " section of the changelog
+          awk '/^## /{n++} n==1' CHANGELOG.md > notes.md
+          cat >> notes.md <<EOF
+
+          ## Downloads
+
+          | File | What it is |
+          |---|---|
+          | \`LeerBox_Text_Art_Studio_V3.html\` | Web edition — open it in any modern browser, works offline. Or use it online: https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/ |
+          | \`LeerBox_Text_Art_Studio_V3.py\` | Desktop edition — \`python LeerBox_Text_Art_Studio_V3.py\` (Python 3.10+; \`pip install pillow numpy\` for the Image/Animation Studios) |
+          | \`LeerBox_Text_Art_Studio_V3.exe\` | Windows executable, no Python needed. **Unsigned:** SmartScreen / Smart App Control may warn or block it. |
+          | \`SHA256SUMS.txt\` | Checksums. Each file also has a build-provenance attestation: \`gh attestation verify <file> --repo ${GITHUB_REPOSITORY}\` |
+
+          All files were built and tested by GitHub Actions from commit ${GITHUB_SHA::7}.
+          EOF
+
+      - name: Publish
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/* --clobber
+          else
+            gh release create "$TAG" release/* --title "Textorium ${TAG#v}" --notes-file notes.md --verify-tag
+          fi

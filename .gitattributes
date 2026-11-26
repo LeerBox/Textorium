@@ -1,0 +1,11 @@
+# Keep every file byte-for-byte: golden fixtures and built files are compared exactly.
+* -text
+
+# Language statistics: count the engine, not bundled data or generated builds
+third_party/** linguist-vendored
+legacy_v2/** linguist-vendored
+tests/golden/** linguist-generated
+src/leerbox/data/** linguist-generated
+FONT_MANIFEST.json linguist-generated
+LeerBox_Text_Art_Studio_V3.py linguist-generated
+LeerBox_Text_Art_Studio_V3.html linguist-generated

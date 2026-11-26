@@ -1,0 +1,7 @@
+# Development / test / build dependencies
+-r requirements.txt
+pytest>=8.0
+pyfiglet==1.0.4        # independent reference implementation for golden tests
+python-bidi>=0.6       # optional bidi cross-check in tests
+arabic-reshaper>=3.0   # optional shaping cross-check in tests
+pyinstaller>=6.0       # Windows EXE build

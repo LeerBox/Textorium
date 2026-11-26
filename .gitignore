@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+build/
+*.spec
+
+# Build output (rebuilt by tools/ and by the release workflow; the EXE is a release asset)
+dist/
+
+# V2 copies at the root (the originals are kept in legacy_v2/)
+/LeerBox_Text_Art_Studio_V2.html
+/LeerBox_Text_Art_Studio_V2.py
+
+# Local tooling
+.claude/
+.vscode/
+.idea/
+*.log
+Thumbs.db
+desktop.ini

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            python: "3.13"
+          - os: ubuntu-latest
+            python: "3.13"
+          - os: ubuntu-latest
+            python: "3.10"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements.txt pytest pyfiglet==1.0.4 python-bidi arabic-reshaper
+
+      - name: Build the single-file editions
+        run: |
+          python tools/build_python.py
+          python tools/build_html.py
+
+      - name: Check the committed builds are up to date
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          if ! git diff --quiet -- LeerBox_Text_Art_Studio_V3.py LeerBox_Text_Art_Studio_V3.html; then
+            echo "::error::LeerBox_Text_Art_Studio_V3.py / .html differ from a fresh build. Run '.\build.ps1 python' and '.\build.ps1 html' and commit the result."
+            exit 1
+          fi
+
+      - name: JavaScript engine tests
+        run: node tests/js/run_tests.js
+
+      - name: Python tests
+        working-directory: tests
+        run: python -m pytest -q

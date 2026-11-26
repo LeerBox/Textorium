@@ -1,0 +1,15 @@
+[submodule "third_party/cacalabs_toilet"]
+	path = third_party/cacalabs_toilet
+	url = https://github.com/cacalabs/toilet.git
+[submodule "third_party/patorjk_figlet.js"]
+	path = third_party/patorjk_figlet.js
+	url = https://github.com/patorjk/figlet.js.git
+[submodule "third_party/phracker_figlet-fonts"]
+	path = third_party/phracker_figlet-fonts
+	url = https://github.com/phracker/figlet-fonts.git
+[submodule "third_party/pwaller_pyfiglet"]
+	path = third_party/pwaller_pyfiglet
+	url = https://github.com/pwaller/pyfiglet.git
+[submodule "third_party/xero_figlet-fonts"]
+	path = third_party/xero_figlet-fonts
+	url = https://github.com/xero/figlet-fonts.git
